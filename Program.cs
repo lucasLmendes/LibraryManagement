@@ -24,11 +24,11 @@ public static class Program
                     {
                         Console.WriteLine("Adding a new book!");
                         Console.Write("Enter title: ");
-                        var title = Console.ReadLine();
+                        var title = Console.ReadLine() ?? "Unknown Title";
                         Console.Write("Enter author: ");
-                        var author = Console.ReadLine();
+                        var author = Console.ReadLine() ?? "Unknown Author";
                         Console.Write("Enter genre: ");
-                        var genre = Console.ReadLine();
+                        var genre = Console.ReadLine() ?? "Unknown Genre";
                         AddBook(new Book { Title = title, Author = author, Genre = genre, isBookBorrowed = 0 }); // this adds the book, and the book Id is now set in the database as Auto Increment
                         break;
                     }
@@ -40,14 +40,16 @@ public static class Program
                         break;
                     }
                 case "3":
-                    {
-                        int idNumber;
+                    {                     
                         Console.WriteLine("Please insert the ID of the book you want to change or mark as borrowed: ");
-                        int bookToUpdate = int.Parse(Console.ReadLine());
-                        Console.WriteLine("Do you want to:");
-                        Console.WriteLine("1. Change this book.");
-                        Console.WriteLine("2. Mark this book as borrowed.");
-                        ChangeOrBorrowBook(bookToUpdate);
+                        if (int.TryParse(Console.ReadLine(), out int bookToUpdate))  // Check if input is a valid integer
+                        {
+                            ChangeOrBorrowBook(bookToUpdate);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ID entered.");
+                        }
                         break;
                     }
                 case "4":
@@ -122,18 +124,17 @@ public static class Program
                 if (changeOrBorrow == "1")
                 {
                     Console.WriteLine("Please, write the new title: ");
-                    string? newTitle = Console.ReadLine();
+                    string? newTitle = Console.ReadLine() ?? "Unknown Title";
                     Console.WriteLine("Please, write the new author: ");
-                    string? newAuthor = Console.ReadLine();
+                    string? newAuthor = Console.ReadLine() ?? "Unknown Author";
                     Console.WriteLine("Please, write the new genre: ");
-                    string? newGenre = Console.ReadLine();
+                    string? newGenre = Console.ReadLine() ?? "Unknown Genre";
                     ChangeBook(bookId, newTitle, newAuthor, newGenre);
                 }
                 else
                 {
                     Console.WriteLine("Press 1 to borrow the book, or 2 to return it: ");
-                    int? borrowOrReturn = int.Parse(Console.ReadLine());
-                    if (borrowOrReturn != null)
+                    if (int.TryParse(Console.ReadLine(), out int borrowOrReturn))
                     {
                         if (borrowOrReturn == 1)
                         {
@@ -162,14 +163,17 @@ public static class Program
         using (var context = new LibraryContext())
         {
             var book = context.Books.Find(bookId);
-            book.Title = newTitle;
-            book.Author = newAuthor;
-            book.Genre = newGenre;
-            context.SaveChanges();
-            Console.WriteLine("Book updtaed successfully!");
-            Console.WriteLine("Press ENTER to continue.");
-            Console.ReadLine();
-            MenuShow();
+            if (book != null)
+            {
+                book.Title = newTitle;
+                book.Author = newAuthor;
+                book.Genre = newGenre;
+                context.SaveChanges();
+                Console.WriteLine("Book updtaed successfully!");
+                Console.WriteLine("Press ENTER to continue.");
+                Console.ReadLine();
+                MenuShow();
+            }
         }
     
     }
