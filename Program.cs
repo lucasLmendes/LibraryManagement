@@ -54,19 +54,27 @@ public static class Program
                     }
                 case "4":
                     {
-                        Console.WriteLine("Remove a book from the application.");
-                        // logic for book removal from the database
+                        Console.WriteLine("Please insert the ID of the book you want to delete: ");
+                        if (int.TryParse(Console.ReadLine(), out int bookToDelete))  // Check if input is a valid integer
+                        {
+                            DeleteBook(bookToDelete);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid ID entered.");
+                        }
                         break;
+                        
                     }
                 case "5":
                     {
                         Console.WriteLine("Exiting the application.");
-                        //logic for exiting the app (probably change the parameter for while loop)
                         break;
                     }
                 default:
                     {
                         Console.WriteLine("Please insert a number from 1 to 5!");
+                        MenuShow();
                         break;
                     }
             }
@@ -220,9 +228,25 @@ public static class Program
             var book = context.Books.Find(bookId);
             if (book != null)
             {
-                context.Books.Remove(book);
-                context.SaveChanges();
-                Console.WriteLine($"Book {book.Title} deleted");
+                Console.WriteLine($"Are you sure you want to delete {book.Title}? Enter \"y\" for Yes and \"n\" for No");
+                string? confirmDeletion = Console.ReadLine().Trim().ToLower();
+                do
+                {
+                    if (confirmDeletion == "y")
+                    {
+                        context.Books.Remove(book);
+                        context.SaveChanges();
+                        Console.WriteLine($"Book {book.Title} deleted");
+                    }
+                    else if (confirmDeletion == "n")
+                    {
+                        Console.WriteLine("Cancelling operation.");
+                    }
+                    else 
+                    {
+                        Console.WriteLine("Please, enter \"y\" or \"n\". Returning to the main menu.");
+                    }
+                } while (confirmDeletion == null);   
             }
             else
             {
