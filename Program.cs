@@ -40,6 +40,15 @@ public static class Program
                         break;
                     }
                 case "3":
+                    {
+                        Console.WriteLine("Please, search for the book using the title: ");
+                        string? searchTerm = Console.ReadLine();
+                        SearchBook(searchTerm);
+                        Console.WriteLine("Press ENTER to continue.");
+                        Console.ReadLine();
+                        break;
+                    }
+                case "4":
                     {                     
                         Console.WriteLine("Please insert the ID of the book you want to change or mark as borrowed: ");
                         if (int.TryParse(Console.ReadLine(), out int bookToUpdate))  // Check if input is a valid integer
@@ -52,7 +61,7 @@ public static class Program
                         }
                         break;
                     }
-                case "4":
+                case "5":
                     {
                         Console.WriteLine("Please insert the ID of the book you want to delete: ");
                         if (int.TryParse(Console.ReadLine(), out int bookToDelete))  // Check if input is a valid integer
@@ -66,7 +75,7 @@ public static class Program
                         break;
                         
                     }
-                case "5":
+                case "6":
                     {
                         Console.WriteLine("Exiting the application.");
                         break;
@@ -78,18 +87,19 @@ public static class Program
                         break;
                     }
             }
-        } while (choiceInput != "5");
+        } while (choiceInput != "6");
     }
 
     static void MenuShow()
     {
-        Console.WriteLine("Welcome to LibCage System!\n");
+        Console.WriteLine("Welcome to LibCage System!\n"); // To do: an option to search a book by title and return the Id, for when the library db is filled with hundreds or thousands of books.
         Console.WriteLine("Please select an option: ");
         Console.WriteLine("1. Add a book to the library.");
         Console.WriteLine("2. List all books.");
-        Console.WriteLine("3. Change information about a book.");
-        Console.WriteLine("4. Delete a book from the library.");
-        Console.WriteLine("5. Close the application.");
+        Console.WriteLine("3. Search book by title.");
+        Console.WriteLine("4. Change information about a book.");
+        Console.WriteLine("5. Delete a book from the library.");
+        Console.WriteLine("6. Close the application.");
     }
 
     static void AddBook(Book newBook) // so this takes the parameter "Book" which is automatically an instantiation to the Book model in the "Model" folder
@@ -128,6 +138,7 @@ public static class Program
             var book = context.Books.Find(bookId);
             if (book != null)
             {
+                Console.WriteLine("Do you want to:\n1. Change information about the book\n2. Mark the book as borrowed or return it");
                 string? changeOrBorrow = Console.ReadLine();
                 if (changeOrBorrow == "1")
                 {
@@ -177,13 +188,36 @@ public static class Program
                 book.Author = newAuthor;
                 book.Genre = newGenre;
                 context.SaveChanges();
-                Console.WriteLine("Book updtaed successfully!");
+                Console.WriteLine("Book updated successfully!");
                 Console.WriteLine("Press ENTER to continue.");
                 Console.ReadLine();
-                MenuShow();
             }
         }
     
+    }
+
+    static void SearchBook(string? partialMatchForSearch)
+    {
+        using (var context = new LibraryContext())
+        {
+            var books = context.Books
+                                .Where(book => book.Title.Contains(partialMatchForSearch))
+                                .ToList();
+            if (partialMatchForSearch != null)
+            {
+                if (books.Any())
+                {
+                    foreach (var book in books)
+                    {
+                        Console.WriteLine($"ID = {book.Id}, Title = {book.Title}");
+                    }
+                }
+                else 
+                {
+                    Console.WriteLine("No books found with that term on the title.");
+                }
+            }    
+        }
     }
 
     static void BorrowBook(int bookId)
